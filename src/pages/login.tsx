@@ -1,6 +1,7 @@
 import {
   Button,
-  ButtonGroup,
+  Link as ChakraLink,
+  Field,
   Flex,
   Heading,
   HStack,
@@ -9,17 +10,38 @@ import {
   Stack,
   Text,
   VStack,
-  Link as ChakraLink,
-  Center,
-  Field,
 } from "@chakra-ui/react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { zodResolver } from "@hookform/resolvers/zod";
 import NextLink from "next/link";
-
-import loginImage from "../../public/assets/login-image.gif";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import loginImage from "../../public/assets/login-image.gif";
+
+const signInFormSchema = z.object({
+  email: z.email("Digite um e-mail válido").nonempty("O e-mail é obrigatório"),
+  password: z
+    .string()
+    .nonempty("A senha é obrigatória")
+    .min(8, "A senha deve ter pelo menos 8 caracteres"),
+});
+
+type SignInFormData = z.infer<typeof signInFormSchema>;
 
 export default function Login() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(signInFormSchema),
+  });
+
+  function handleSignIn(data: SignInFormData) {
+    console.log(data);
+  }
+
   return (
     <Flex w="100vw" h="100vh">
       <Flex w="50%" bg="#2C73EB" align="center" justify="center">
@@ -27,56 +49,71 @@ export default function Login() {
       </Flex>
       <VStack w="50%" justify="center">
         <Stack>
-
-          <Heading as="h1" fontSize="3xl" fontWeight={"bold"} color={"black"}>Account Login</Heading>
-
-          <Text fontSize="lg" fontWeight={"normal"} color={"#8692A6"}>
-            If you are already a member you can login with your email address
-            and password.
+          <Heading as="h1" color={"#000000"} fontSize="3xl" fontWeight="bold ">
+            Login
+          </Heading>
+          <Text color="gray.500" fontSize="lg" fontWeight={"normal"}>
+            Se você já é membro, pode fazer login com seu endereço de e-mail e
+            senha.
           </Text>
 
-          <VStack align={"flex-start"} gap={6} mt={10}>
+          <VStack as="form" onSubmit={handleSubmit(handleSignIn)} align="flex-start" gap={6} mt={10}>
+            <Field.Root invalid={!!errors.email}>
+              <Field.Label color="gray.500">Email</Field.Label>
+              <Input
+                h={16}
+                colorPalette="blue"
+                borderRadius="md"
+                color={"black"}
+                {...register("email")}
+              />
+              <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Field.Root >
-            <Field.Label color="gray.500" fontSize={"md"}>
-             Email address
-            </Field.Label>
-          <Input type="email"
-              h={16}
-              colorPalette={"blue"}
-              borderRadius={"md"}
-              color={"black"}/>
-          </Field.Root>
+            <Field.Root invalid={!!errors.password}>
+              <Field.Label color="gray.500">Senha</Field.Label>
+              <PasswordInput
+                type="password"
+                h={16}
+                colorPalette="blue"
+                borderRadius="md"
+                color={"black"}
+                {...register("password")}
+              />
+              <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Field.Root >
-            <Field.Label color="gray.500" fontSize={"md"}>
-             Password
-            </Field.Label>
-          <PasswordInput type="password"
-              h={16}
-              colorPalette={"blue"}
-              borderRadius={"md"}
-              color={"black"}/>
-          </Field.Root>
-
-          <Checkbox colorPalette={"blue"} color={"#696F79"} fontSize={"md"}>
-            Remember-me
-          </Checkbox>
-
-          <Button h={16}
-              colorPalette={"blue"}
-              _hover={ {opacity: 0.8}}
-              borderRadius={"md"}
+            <Checkbox
+              colorPalette="blue"
+              color="gray.500"
               fontSize={"md"}
               fontWeight={"medium"}
-              w={"full"}>Register Account</Button>
+            >
+              Lembre-me
+            </Checkbox>
+
+            <Button
+              type="submit"
+              w="full"
+              h={16}
+              colorPalette="blue"
+              borderRadius="md"
+              fontWeight="medium"
+              fontSize="md"
+            >
+              Entrar
+            </Button>
           </VStack>
 
-          <HStack justify="center" gap={1} mt={10}>
-            <Text color={"#696F79"} >Não possui uma conta?</Text>
-          <ChakraLink color={"#2C73EB"}asChild>
-            <NextLink href="/sign-up">Clique aqui!</NextLink>
-          </ChakraLink>
+
+          <HStack gap={1} justify={"center"} mt={10}>
+            <Text color="gray.500" fontWeight="medium" fontSize="md">
+              Não possui uma conta?
+            </Text>
+
+            <ChakraLink color="blue" asChild>
+              <NextLink href="/sign-up">Clique aqui!</NextLink>
+            </ChakraLink>
           </HStack>
         </Stack>
       </VStack>
