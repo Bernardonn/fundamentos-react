@@ -18,6 +18,8 @@ import z from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
 import loginImage from "../../public/assets/login-image.gif";
+import { useSession } from "@/contexts/SessionContext";
+import { useEffect } from "react";
 
 const signInFormSchema = z.object({
   email: z.email("Digite um e-mail válido").nonempty("O e-mail é obrigatório"),
@@ -30,17 +32,27 @@ const signInFormSchema = z.object({
 type SignInFormData = z.infer<typeof signInFormSchema>;
 
 export default function Login() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+
+  const { user, updateUser } = useSession();
+
+  const { register, handleSubmit,formState: { errors },} = useForm({
     resolver: zodResolver(signInFormSchema),
   });
 
   function handleSignIn(data: SignInFormData) {
     console.log(data);
+    updateUser({
+      id: "teste",
+      email: data.email,
+      cpf: "12345678901",
+      fullName: "Emanuel Bernardon",
+      avatarUrl: "https://gravatar.com/avatar/4c99e50abdce6dfc9f4ded8f63a22e53?s=400&d=robohash&r=x"
+    });
   }
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   return (
     <Flex w="100vw" h="100vh">

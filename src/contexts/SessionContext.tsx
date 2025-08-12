@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { Children, createContext, ReactNode, use, useContext, useState } from "react";
 
 type User = {
   id: string;
@@ -13,4 +13,24 @@ type sessionConxtextData = {
   updateUser: (user: User) => Promise<void>;
 }
 
-const sessionConxtext = createContext();
+const SessionConxtext = createContext({} as sessionConxtextData);
+
+interface SessionProviderProps {
+  children: ReactNode;
+}
+
+export function SessionProvider({children}: SessionProviderProps) {
+
+  const [user, setUser] = useState<User>({} as User);
+  async function updateUser(user: User) {
+    setUser(user);
+  }
+
+  return (
+    <SessionConxtext.Provider value={{ user, updateUser }}>
+      {children}
+    </SessionConxtext.Provider>
+  );
+}
+
+export const useSession = () => useContext(SessionConxtext);
